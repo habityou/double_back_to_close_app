@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 /// Allows the user to close the app by double tapping the back-button.
 ///
@@ -11,6 +12,9 @@ import 'package:flutter/material.dart';
 ///
 /// Since the back-button is an Android feature, this Widget is going to be
 /// nothing but the own [child] if the current platform is anything but Android.
+///
+/// In case a [panelController] is passed the make sure that the panel
+/// controller is closed whenever someone presses back button
 class DoubleBackToCloseApp extends StatefulWidget {
   /// The [SnackBar] shown when the user taps the back-button.
   final SnackBar snackBar;
@@ -18,13 +22,17 @@ class DoubleBackToCloseApp extends StatefulWidget {
   /// The widget below this widget in the tree.
   final Widget child;
 
+  // Slide up Panel controller. In case this is open then close that first
+  final PanelController panelController;
+
   /// Creates a widget that allows the user to close the app by double tapping
   /// the back-button.
-  const DoubleBackToCloseApp({
-    Key key,
-    @required this.snackBar,
-    @required this.child,
-  })  : assert(snackBar != null),
+  const DoubleBackToCloseApp(
+      {Key key,
+      @required this.snackBar,
+      @required this.child,
+      this.panelController})
+      : assert(snackBar != null),
         assert(child != null),
         super(key: key);
 
@@ -77,6 +85,16 @@ class _DoubleBackToCloseAppState extends State<DoubleBackToCloseApp> {
 
   /// Handles [WillPopScope.onWillPop].
   Future<bool> _handleWillPop() async {
+    if (widget.panelController != null && widget.panelController.isPanelOpen) {
+      await widget.panelController.close();
+      return false;
+    }
+
+    if (widget.panelController != null && widget.panelController.isPanelShown) {
+      await widget.panelController.hide();
+      return false;
+    }
+
     if (_isSnackBarVisible || _willHandlePopInternally) {
       return true;
     } else {
