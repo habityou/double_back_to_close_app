@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+typedef FutureBoolCallback = Future<bool> Function();
 
 /// Allows the user to close the app by double tapping the back-button.
 ///
@@ -23,7 +24,7 @@ class DoubleBackToCloseApp extends StatefulWidget {
   final Widget child;
 
   // Slide up Panel controller. In case this is open then close that first
-  final PanelController panelController;
+  final FutureBoolCallback callbackBeforeClosing;
 
   /// Creates a widget that allows the user to close the app by double tapping
   /// the back-button.
@@ -31,7 +32,7 @@ class DoubleBackToCloseApp extends StatefulWidget {
       {Key key,
       @required this.snackBar,
       @required this.child,
-      this.panelController})
+      this.callbackBeforeClosing})
       : assert(snackBar != null),
         assert(child != null),
         super(key: key);
@@ -85,14 +86,12 @@ class _DoubleBackToCloseAppState extends State<DoubleBackToCloseApp> {
 
   /// Handles [WillPopScope.onWillPop].
   Future<bool> _handleWillPop() async {
-    if (widget.panelController != null && widget.panelController.isPanelOpen) {
-      await widget.panelController.close();
-      return false;
-    }
+    if (widget.callbackBeforeClosing != null) {
+      var shouldItProceed = await widget.callbackBeforeClosing();
 
-    if (widget.panelController != null && widget.panelController.isPanelShown) {
-      await widget.panelController.hide();
-      return false;
+      if (!shouldItProceed) {
+        return false;
+      }
     }
 
     if (_isSnackBarVisible || _willHandlePopInternally) {
