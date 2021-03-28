@@ -105,7 +105,7 @@ class _DoubleBackToCloseAppState extends State<DoubleBackToCloseApp> {
 
   /// Throws a [FlutterError] if this widget was not wrapped in a [Scaffold].
   void _ensureThatContextContainsScaffold() {
-    if (Scaffold.of(context, nullOk: true) == null) {
+    if (Scaffold.of(context) == null) {
       throw FlutterError(
         '`DoubleBackToCloseApp` must be wrapped in a `Scaffold`.',
       );
